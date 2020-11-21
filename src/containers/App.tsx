@@ -1,16 +1,13 @@
+import { useMachine, useService } from "@xstate/react";
 import React from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
-import { useService, useMachine } from "@xstate/react";
-import { makeStyles } from "@material-ui/core/styles";
-import { CssBaseline } from "@material-ui/core";
+import { Redirect, Route, Switch } from "react-router-dom";
 
-import { snackbarMachine } from "../machines/snackbarMachine";
-import { notificationsMachine } from "../machines/notificationsMachine";
-import { authService } from "../machines/authMachine";
 import AlertBar from "../components/AlertBar";
 import SignInForm from "../components/SignInForm";
 import SignUpForm from "../components/SignUpForm";
-import { bankAccountsMachine } from "../machines/bankAccountsMachine";
+import { accountsMachine } from "../machines/accountsMachine";
+import { authService } from "../machines/authMachine";
+import { snackbarMachine } from "../machines/snackbarMachine";
 import PrivateRoutesContainer from "./PrivateRoutesContainer";
 
 // @ts-ignore
@@ -20,20 +17,10 @@ if (window.Cypress) {
   window.authService = authService;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-}));
-
 const App: React.FC = () => {
-  const classes = useStyles();
   const [authState] = useService(authService);
-  const [, , notificationsService] = useMachine(notificationsMachine);
-
   const [, , snackbarService] = useMachine(snackbarMachine);
-
-  const [, , bankAccountsService] = useMachine(bankAccountsMachine);
+  const [, , accountsService] = useMachine(accountsMachine);
 
   const isLoggedIn =
     authState.matches("authorized") ||
@@ -41,16 +28,13 @@ const App: React.FC = () => {
     authState.matches("updating");
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-
+    <div>
       {isLoggedIn && (
         <PrivateRoutesContainer
           isLoggedIn={isLoggedIn}
-          notificationsService={notificationsService}
           authService={authService}
           snackbarService={snackbarService}
-          bankAccountsService={bankAccountsService}
+          accountsService={accountsService}
         />
       )}
       {authState.matches("unauthorized") && (
